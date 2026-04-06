@@ -43,38 +43,6 @@ A complete, beginner-friendly web application built with **PHP (no frameworks)**
 | Server      | WAMP / XAMPP / any Apache + PHP + MySQL |
 | Environment | Localhost development               |
 
-## Project Structure
-taskmanager/
-│
-├── assets/
-│ └── style.css # Modern UI (with dark mode)
-│
-├── config/
-│ └── db.php # Database connection (MySQLi)
-│
-├── includes/
-│ ├── header.php # Session start, HTML head, nav start
-│ └── footer.php # Closes container, body, optional dark mode script
-│
-├── uploads/ # Folder for uploaded images (create manually)
-│
-├── database.sql # Users + tasks tables
-├── database_images.sql # Images table (run after main DB)
-│
-├── index.php # Redirects to login or dashboard
-├── register.php # User registration
-├── login.php # User login
-├── logout.php # Destroy session
-├── dashboard.php # Display user tasks
-├── add_task.php # Create new task
-├── edit_task.php # Edit existing task
-├── delete_task.php # Delete task
-│
-├── upload.php # Image upload form + logic
-├── gallery.php # Display all images with download buttons
-└── download.php # Force image download
-
-
 ## Installation Guide (WAMP Server)
 
 ### 1. Setup WAMP
