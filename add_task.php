@@ -1,7 +1,7 @@
 <?php
 require_once 'config/db.php';
 require_once 'includes/header.php';
-session_start();
+// session_start() removed – handled by header.php
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -24,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         mysqli_stmt_bind_param($stmt, "isss", $_SESSION['user_id'], $title, $description, $status);
         if (mysqli_stmt_execute($stmt)) {
             $success = "Task added successfully.";
-            // Clear form
             $title = $description = '';
             $status = 'pending';
         } else {

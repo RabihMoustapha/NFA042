@@ -1,7 +1,7 @@
 <?php
 require_once 'config/db.php';
 require_once 'includes/header.php';
-session_start();
+// session_start() removed – handled by header.php
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -10,7 +10,6 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch all tasks for this user
 $query = "SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC";
 $stmt = mysqli_prepare($conn, $query);
 mysqli_stmt_bind_param($stmt, "i", $user_id);
@@ -22,6 +21,8 @@ $result = mysqli_stmt_get_result($stmt);
     <strong>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></strong>
     <a href="add_task.php">+ Add Task</a>
     <a href="logout.php">Logout</a>
+    <a href="upload.php">Upload Image</a>
+<a href="gallery.php">Image Gallery</a>
 </div>
 
 <h2>My Tasks</h2>

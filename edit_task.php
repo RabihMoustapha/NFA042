@@ -1,7 +1,7 @@
 <?php
 require_once 'config/db.php';
 require_once 'includes/header.php';
-session_start();
+// session_start() removed – handled by header.php
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -11,7 +11,6 @@ if (!isset($_SESSION['user_id'])) {
 $task_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $user_id = $_SESSION['user_id'];
 
-// Fetch task and verify ownership
 $query = "SELECT * FROM tasks WHERE id = ? AND user_id = ?";
 $stmt = mysqli_prepare($conn, $query);
 mysqli_stmt_bind_param($stmt, "ii", $task_id, $user_id);
@@ -40,7 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         mysqli_stmt_bind_param($stmt_up, "sssii", $title, $description, $status, $task_id, $user_id);
         if (mysqli_stmt_execute($stmt_up)) {
             $success = "Task updated.";
-            // Refresh task data
             $task['title'] = $title;
             $task['description'] = $description;
             $task['status'] = $status;

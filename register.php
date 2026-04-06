@@ -1,6 +1,7 @@
 <?php
 require_once 'config/db.php';
 require_once 'includes/header.php';
+// session_start() removed
 
 $error = '';
 $success = '';
@@ -11,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $confirm  = $_POST['confirm_password'];
 
-    // Basic validation
     if (empty($username) || empty($email) || empty($password)) {
         $error = "All fields are required.";
     } elseif ($password !== $confirm) {
@@ -21,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Invalid email format.";
     } else {
-        // Check if username or email already exists
         $check = mysqli_prepare($conn, "SELECT id FROM users WHERE username = ? OR email = ?");
         mysqli_stmt_bind_param($check, "ss", $username, $email);
         mysqli_stmt_execute($check);

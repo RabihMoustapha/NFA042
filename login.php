@@ -1,12 +1,7 @@
 <?php
 require_once 'config/db.php';
 require_once 'includes/header.php';
-session_start();
-
-if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
-    exit();
-}
+// session_start() removed – handled by header.php
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
