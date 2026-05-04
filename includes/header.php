@@ -1,5 +1,7 @@
 <?php
-// Start session if not already started
+/**
+ * Common header – starts the session and outputs the HTML <head>
+ */
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

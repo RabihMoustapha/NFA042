@@ -1,54 +1,54 @@
-/* ============================================
-   MODERN TASK MANAGER UI
-   Colors: Soft blue/gray palette
-   Fonts: Google Fonts (Inter)
-   Responsive, smooth transitions
-============================================ */
+/* =================================================
+   TASK MANAGER – CLEAN, SYSTEM‑THEMED STYLES
+   Light/dark follows the OS preference
+   Uses system fonts, no manual toggle.
+   ================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
-
-/* ---------- CSS VARIABLES ---------- */
+/* ---------- CSS CUSTOM PROPERTIES (Light) ---------- */
 :root {
-    --bg-body: #f8fafc;
+    --bg-body: #f4f6f8;
     --bg-surface: #ffffff;
-    --bg-card: #ffffff;
-    --text-primary: #0f172a;
-    --text-secondary: #334155;
-    --text-muted: #64748b;
-    --border-light: #e2e8f0;
-    --border-focus: #94a3b8;
-    --primary: #3b82f6;
-    --primary-dark: #2563eb;
-    --primary-hover: #1d4ed8;
-    --success: #10b981;
-    --success-dark: #059669;
-    --danger: #ef4444;
-    --danger-dark: #dc2626;
-    --warning: #f59e0b;
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    --radius-sm: 0.375rem;
-    --radius-md: 0.5rem;
-    --radius-lg: 0.75rem;
-    --transition: all 0.2s ease;
+    --text-primary: #2d3748;
+    --text-secondary: #4a5568;
+    --border: #e2e8f0;
+    --border-focus: #2b6cb0;
+    --link: #2b6cb0;
+    --btn-bg: #2b6cb0;
+    --btn-text: #ffffff;
+    --table-header-bg: #edf2f7;
+    --table-stripe: #f7fafc;
+    --alert-error-bg: #fff5f5;
+    --alert-error-border: #e53e3e;
+    --alert-error-text: #c53030;
+    --alert-success-bg: #f0fff4;
+    --alert-success-border: #38a169;
+    --alert-success-text: #2f855a;
 }
 
-/* Dark mode variables – togglable via class on body */
-body.dark {
-    --bg-body: #0f172a;
-    --bg-surface: #1e293b;
-    --bg-card: #1e293b;
-    --text-primary: #f1f5f9;
-    --text-secondary: #cbd5e1;
-    --text-muted: #94a3b8;
-    --border-light: #334155;
-    --border-focus: #475569;
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+/* Dark colour scheme – overrides above when OS prefers dark */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-body: #1a202c;
+        --bg-surface: #2d3748;
+        --text-primary: #e2e8f0;
+        --text-secondary: #cbd5e0;
+        --border: #4a5568;
+        --border-focus: #63b3ed;
+        --link: #63b3ed;
+        --btn-bg: #2b6cb0;
+        --btn-text: #ffffff;
+        --table-header-bg: #4a5568;
+        --table-stripe: #2d3748;
+        --alert-error-bg: #3b2a2a;
+        --alert-error-border: #fc8181;
+        --alert-error-text: #fed7d7;
+        --alert-success-bg: #2a3b2a;
+        --alert-success-border: #68d391;
+        --alert-success-text: #c6f6d5;
+    }
 }
 
-/* ---------- GLOBAL RESET ---------- */
+/* ---------- RESET & BASE ---------- */
 * {
     margin: 0;
     padding: 0;
@@ -56,291 +56,365 @@ body.dark {
 }
 
 body {
-    font-family: 'Inter', sans-serif;
-    background-color: var(--bg-body);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-body);
     color: var(--text-primary);
-    line-height: 1.5;
-    padding: 2rem 1rem;
-    transition: var(--transition);
+    line-height: 1.6;
+    padding: 1.5rem;
+    transition: background 0.2s, color 0.2s;
 }
 
-/* Main container */
 .container {
-    max-width: 1280px;
+    max-width: 1100px;
     margin: 0 auto;
     background: var(--bg-surface);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    overflow: hidden;
-    padding: 1.5rem;
-}
-
-@media (min-width: 768px) {
-    .container {
-        padding: 2rem;
-    }
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem;
 }
 
 /* ---------- TYPOGRAPHY ---------- */
-h1, h2, h3 {
-    font-weight: 600;
-    letter-spacing: -0.025em;
+h1,
+h2,
+h3 {
     margin-bottom: 1rem;
+    font-weight: 600;
     color: var(--text-primary);
 }
 
 h2 {
     font-size: 1.5rem;
-    border-left: 4px solid var(--primary);
-    padding-left: 0.75rem;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
 }
 
-/* ---------- NAVBAR / HEADER AREA ---------- */
+p {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+a {
+    color: var(--link);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- NAVIGATION ---------- */
 .nav {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
     align-items: center;
     gap: 1rem;
+    padding: 0.75rem 0;
     margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border);
 }
 
 .nav strong {
-    font-size: 1.25rem;
-    background: linear-gradient(135deg, var(--primary), #6366f1);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
+    font-size: 1.1rem;
+    color: var(--link);
+    margin-right: auto;
 }
 
 .nav a {
-    color: var(--text-secondary);
-    text-decoration: none;
+    padding: 0.4rem 0.8rem;
+    background: var(--table-header-bg);
+    border-radius: 3px;
     font-weight: 500;
-    padding: 0.5rem 0.75rem;
-    border-radius: var(--radius-sm);
-    transition: var(--transition);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    transition: background 0.15s;
 }
 
 .nav a:hover {
-    background-color: var(--border-light);
-    color: var(--primary);
+    background: var(--border);
+    text-decoration: none;
 }
 
 /* ---------- FORMS ---------- */
 form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
+    max-width: 550px;
     margin-top: 1rem;
 }
 
 label {
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin-bottom: 0.25rem;
     display: block;
+    margin: 1rem 0 0.3rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.6rem 0.8rem;
     font-family: inherit;
-    font-size: 0.875rem;
-    background-color: var(--bg-body);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: var(--bg-surface);
     color: var(--text-primary);
-    transition: var(--transition);
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
     outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px rgba(43, 108, 176, 0.25);
 }
 
 textarea {
     resize: vertical;
-    min-height: 100px;
+    min-height: 90px;
 }
 
 /* ---------- BUTTONS ---------- */
-button, .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.6rem 1.25rem;
+button,
+.btn {
+    display: inline-block;
+    padding: 0.55rem 1.2rem;
     font-family: inherit;
-    font-weight: 500;
     font-size: 0.875rem;
-    border: none;
-    border-radius: var(--radius-md);
+    font-weight: 500;
+    border: 1px solid var(--btn-bg);
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border-radius: 3px;
     cursor: pointer;
-    transition: var(--transition);
-    text-decoration: none;
-    background-color: var(--primary);
-    color: white;
+    text-align: center;
+    margin-top: 1rem;
+    transition: background 0.2s;
 }
 
-button:hover, .btn:hover {
-    background-color: var(--primary-dark);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+button:hover,
+.btn:hover {
+    filter: brightness(1.1);
+    text-decoration: none;
 }
 
 .btn-danger {
-    background-color: var(--danger);
+    background: #c53030;
+    border-color: #c53030;
 }
+
 .btn-danger:hover {
-    background-color: var(--danger-dark);
+    background: #9b2c2c;
 }
 
 .btn-edit {
-    background-color: var(--warning);
-    color: #1e293b;
+    background: #d69e2e;
+    border-color: #d69e2e;
+    color: #1a202c;
 }
+
 .btn-edit:hover {
-    background-color: #eab308;
+    background: #b7791f;
 }
 
-/* ---------- TABLES (modern, responsive) ---------- */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1.5rem;
-    font-size: 0.875rem;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-}
-
-th {
-    background-color: var(--bg-body);
-    color: var(--text-secondary);
-    font-weight: 600;
-    padding: 0.75rem 1rem;
-    text-align: left;
-    border-bottom: 2px solid var(--border-light);
-}
-
-td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--border-light);
-    color: var(--text-primary);
-}
-
-tr:hover {
-    background-color: rgba(59, 130, 246, 0.05);
-}
-
-/* Responsive table: horizontal scroll on small screens */
-@media (max-width: 768px) {
-    table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-    }
-}
-
-/* ---------- ACTION LINKS INSIDE TABLE ---------- */
-td a {
-    text-decoration: none;
-    font-weight: 500;
+td a.btn-edit,
+td a.btn-danger {
     padding: 0.25rem 0.75rem;
-    border-radius: var(--radius-sm);
-    transition: var(--transition);
+    font-size: 0.8rem;
+    margin: 0 0.25rem;
+    border-radius: 3px;
     display: inline-block;
-    margin-right: 0.5rem;
+    text-decoration: none;
 }
 
 td a.btn-edit {
-    background-color: var(--warning);
-    color: #0f172a;
-}
-td a.btn-danger {
-    background-color: var(--danger);
-    color: white;
-}
-td a.btn-edit:hover, td a.btn-danger:hover {
-    transform: translateY(-1px);
-    filter: brightness(0.95);
+    background: #ecc94b;
+    color: #1a202c;
 }
 
-/* ---------- ALERTS / MESSAGES ---------- */
-.error, .success {
+td a.btn-danger {
+    background: #fc8181;
+    color: #fff;
+}
+
+td a.btn-edit:hover {
+    background: #d69e2e;
+}
+
+td a.btn-danger:hover {
+    background: #f56565;
+}
+
+/* ---------- ALERTS ---------- */
+.error,
+.success {
     padding: 0.75rem 1rem;
-    border-radius: var(--radius-md);
-    margin-bottom: 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
+    margin: 1rem 0;
     border-left: 4px solid;
+    background: var(--bg-surface);
+    font-size: 0.9rem;
+    border-radius: 3px;
 }
 
 .error {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: var(--danger);
-    border-left-color: var(--danger);
+    border-color: var(--alert-error-border);
+    background: var(--alert-error-bg);
+    color: var(--alert-error-text);
 }
 
 .success {
-    background-color: rgba(16, 185, 129, 0.1);
-    color: var(--success);
-    border-left-color: var(--success);
+    border-color: var(--alert-success-border);
+    background: var(--alert-success-bg);
+    color: var(--alert-success-text);
 }
 
-/* ---------- CARD-LIKE STRUCTURE ---------- */
-/* used implicitly for container, forms, etc. */
+/* ---------- TABLES ---------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.875rem;
+}
+
+th {
+    background: var(--table-header-bg);
+    font-weight: 600;
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+    color: var(--text-secondary);
+}
+
+td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+tr:nth-child(even) td {
+    background: var(--table-stripe);
+}
+
+/* ---------- CARD (gallery) ---------- */
 .card {
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    box-shadow: var(--shadow-md);
-    margin-bottom: 1.5rem;
-    border: 1px solid var(--border-light);
-}
-
-/* ---------- LINKS (general) ---------- */
-a {
-    color: var(--primary);
-    text-decoration: none;
-    transition: var(--transition);
-}
-a:hover {
-    color: var(--primary-dark);
-    text-decoration: underline;
-}
-
-/* ---------- DARK MODE TOGGLE (optional) ---------- */
-.theme-toggle {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    cursor: pointer;
-    box-shadow: var(--shadow-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    z-index: 1000;
-    transition: var(--transition);
-}
-.theme-toggle:hover {
-    transform: scale(1.05);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 /* ---------- UTILITIES ---------- */
-.text-center { text-align: center; }
-.mt-2 { margin-top: 0.5rem; }
-.mt-4 { margin-top: 1rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-4 { margin-bottom: 1rem; }
+.text-center {
+    text-align: center;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+/* ---------- CUSTOM FILE INPUT ---------- */
+.custom-file {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.3rem;
+}
+
+.custom-file input[type="file"] {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.file-label {
+    display: inline-block;
+    padding: 0.55rem 1.2rem;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid var(--btn-bg);
+    transition: filter 0.2s;
+}
+
+.file-label:hover {
+    filter: brightness(1.1);
+}
+
+.file-name {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* ---------- GALLERY GRID & CARDS ---------- */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.gallery-item {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.gallery-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 3px;
+    background: var(--border);
+}
+
+.gallery-title {
+    margin: 0.75rem 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.gallery-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: auto;
+}
+
+.card-actions .btn,
+.card-actions .btn-edit,
+.card-actions .btn-danger {
+    margin-top: 0;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}

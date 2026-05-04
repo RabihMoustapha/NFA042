@@ -2,39 +2,52 @@
 require_once 'config/db.php';
 require_once 'includes/header.php';
 
-// Fetch all images
-$query = "SELECT id, title, image_path, created_at FROM images ORDER BY created_at DESC";
-$result = mysqli_query($conn, $query);
-
-if (!$result) {
-    die("Query failed: " . mysqli_error($conn));
+try {
+    $result = $conn->query('SELECT id, user_id, title, image_path, created_at FROM images ORDER BY created_at DESC');
+} catch (mysqli_sql_exception $e) {
+    error_log('Gallery query error: ' . $e->getMessage());
+    $result = null;
 }
 ?>
 
-<h2>Image Gallery</h2>
+<!-- Navigation bar -->
+<div class="nav">
+    <strong>Image Gallery</strong>
+    <a href="dashboard.php">← Back to Dashboard</a>
+    <a href="upload.php">+ Upload New Image</a>
+</div>
 
-<?php if (mysqli_num_rows($result) === 0): ?>
+<h2>All Images</h2>
+
+<?php if (!$result || $result->num_rows === 0): ?>
     <p>No images yet. <a href="upload.php">Upload your first image</a>.</p>
 <?php else: ?>
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-        <?php while ($row = mysqli_fetch_assoc($result)): ?>
-            <div class="card" style="text-align: center;">
-                <?php 
-                $imgPath = htmlspecialchars($row['image_path']);
-                $title = htmlspecialchars($row['title'] ?: 'Untitled');
-                ?>
-                <img src="<?php echo $imgPath; ?>" alt="<?php echo $title; ?>" 
-                     style="width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius-md);">
-                <h3 style="margin: 0.75rem 0 0.5rem; font-size: 1rem;"><?php echo $title; ?></h3>
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                    <?php echo date('Y-m-d H:i', strtotime($row['created_at'])); ?>
+    <div class="gallery-grid">
+        <?php while ($row = $result->fetch_assoc()): ?>
+            <?php
+                $imgPath   = htmlspecialchars($row['image_path']);
+                $title     = htmlspecialchars($row['title'] ?: 'Untitled');
+                $imageId   = (int)$row['id'];
+                $ownerId   = (int)$row['user_id'];
+                $isOwner   = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $ownerId;
+            ?>
+            <div class="card gallery-item">
+                <img src="<?= $imgPath ?>" alt="<?= $title ?>" class="gallery-image">
+                <h3 class="gallery-title"><?= $title ?></h3>
+                <p class="gallery-date">
+                    <?= htmlspecialchars(date('Y-m-d H:i', strtotime($row['created_at']))) ?>
                 </p>
-                <a href="download.php?id=<?php echo $row['id']; ?>" class="btn">⬇ Download</a>
+                <div class="card-actions">
+                    <a href="download.php?id=<?= $imageId ?>" class="btn">⬇ Download</a>
+                    <?php if ($isOwner): ?>
+                        <a href="edit_image.php?id=<?= $imageId ?>" class="btn btn-edit">✎ Edit</a>
+                        <a href="delete_image.php?id=<?= $imageId ?>" class="btn btn-danger"
+                           onclick="return confirm('Delete this image?')">✕ Delete</a>
+                    <?php endif; ?>
+                </div>
             </div>
         <?php endwhile; ?>
     </div>
 <?php endif; ?>
-
-<p style="margin-top: 2rem;"><a href="upload.php">+ Upload Another Image</a></p>
 
 <?php require_once 'includes/footer.php'; ?>

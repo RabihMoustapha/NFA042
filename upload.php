@@ -1,80 +1,103 @@
 <?php
 require_once 'config/db.php';
-require_once 'includes/header.php';  // uses your existing header
+require_once 'includes/header.php';
 
-// Check if user is logged in (optional – adjust to your auth system)
-// If your project has login, uncomment below:
-// session_start();
-// if (!isset($_SESSION['user_id'])) {
-//     header("Location: login.php");
-//     exit();
-// }
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit();
+}
 
 $message = '';
-$error = '';
+$error   = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = trim($_POST['title'] ?? '');
-    $file = $_FILES['image'] ?? null;
+    $file  = $_FILES['image'] ?? null;
 
     if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
-        $error = "Please select an image file.";
+        $error = 'Please select an image file.';
     } else {
-        // Validate file type
-        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime = finfo_file($finfo, $file['tmp_name']);
+        $mime  = finfo_file($finfo, $file['tmp_name']);
         finfo_close($finfo);
 
+        $allowed = ['image/jpeg', 'image/png', 'image/gif'];
         if (!in_array($mime, $allowed)) {
-            $error = "Only JPG, PNG, GIF images are allowed.";
+            $error = 'Only JPG, PNG, GIF images are allowed.';
         } elseif ($file['size'] > 2 * 1024 * 1024) {
-            $error = "File size must be ≤ 2MB.";
+            $error = 'File size must be ≤ 2 MB.';
         } else {
-            // Create unique filename
-            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $newName = uniqid() . '_' . time() . '.' . $ext;
-            $uploadPath = 'uploads/' . $newName;
-
-            if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-                // Save to database
-                $stmt = mysqli_prepare($conn, "INSERT INTO images (title, image_path) VALUES (?, ?)");
-                mysqli_stmt_bind_param($stmt, "ss", $title, $uploadPath);
-                if (mysqli_stmt_execute($stmt)) {
-                    $message = "Image uploaded successfully.";
-                } else {
-                    $error = "Database error. Image not saved.";
-                    // Delete uploaded file if DB fails
-                    unlink($uploadPath);
-                }
-                mysqli_stmt_close($stmt);
+            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            if (!in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
+                $error = 'Invalid file extension.';
             } else {
-                $error = "Failed to move uploaded file.";
+                $newName    = uniqid('img_', true) . '.' . $ext;
+                $uploadPath = 'uploads/' . $newName;
+
+                if (!is_dir('uploads')) {
+                    mkdir('uploads', 0755, true);
+                }
+
+                if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+                    try {
+                        $originalName = basename($file['name']); // keep original filename
+                        $stmt = $conn->prepare(
+                            'INSERT INTO images (user_id, title, image_path, original_filename) VALUES (?, ?, ?, ?)'
+                        );
+                        $stmt->bind_param('isss', $_SESSION['user_id'], $title, $uploadPath, $originalName);
+                        $stmt->execute();
+                        $message = 'Image uploaded successfully.';
+                    } catch (mysqli_sql_exception $e) {
+                        error_log('Upload DB error: ' . $e->getMessage());
+                        $error = 'Database error, image not saved.';
+                        unlink($uploadPath);
+                    } finally {
+                        if (isset($stmt)) $stmt->close();
+                    }
+                } else {
+                    $error = 'Failed to move uploaded file.';
+                }
             }
         }
     }
 }
 ?>
 
+<div class="nav">
+    <strong>Upload Image</strong>
+    <a href="dashboard.php">← Back to Dashboard</a>
+    <a href="gallery.php">View Gallery</a>
+</div>
+
 <h2>Upload New Image</h2>
 
 <?php if ($error): ?>
-    <div class="error"><?php echo htmlspecialchars($error); ?></div>
+    <div class="error"><?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
 <?php if ($message): ?>
-    <div class="success"><?php echo htmlspecialchars($message); ?></div>
+    <div class="success"><?= htmlspecialchars($message) ?></div>
 <?php endif; ?>
 
 <form method="post" enctype="multipart/form-data">
     <label>Image Title (optional):</label>
-    <input type="text" name="title" placeholder="e.g., Sunset photo">
+    <input type="text" name="title" placeholder="e.g., Sunset photo" maxlength="100">
 
     <label>Select Image (JPG, PNG, GIF, max 2MB):</label>
-    <input type="file" name="image" accept="image/jpeg,image/png,image/gif" required>
+    <div class="custom-file">
+        <input type="file" name="image" id="imageFile" accept="image/jpeg,image/png,image/gif" required>
+        <label for="imageFile" class="file-label">Choose file</label>
+        <span id="file-name" class="file-name">No file selected</span>
+    </div>
 
     <button type="submit">Upload</button>
 </form>
 
-<p><a href="gallery.php">View Gallery →</a></p>
+<script>
+const fileInput = document.getElementById('imageFile');
+const fileNameSpan = document.getElementById('file-name');
+fileInput.addEventListener('change', function() {
+    fileNameSpan.textContent = this.files.length ? this.files[0].name : 'No file selected';
+});
+</script>
 
 <?php require_once 'includes/footer.php'; ?>

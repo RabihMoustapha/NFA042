@@ -1,54 +1,75 @@
 <?php
 require_once 'config/db.php';
 require_once 'includes/header.php';
-// session_start() removed – handled by header.php
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header('Location: login.php');
     exit();
 }
 
-$error = '';
+$error   = '';
 $success = '';
+$title   = '';
+$description = '';
+$status  = 'pending';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = trim($_POST['title']);
-    $description = trim($_POST['description']);
-    $status = $_POST['status'];
+    $title       = trim($_POST['title'] ?? '');
+    $description = trim($_POST['description'] ?? '');
+    $status      = $_POST['status'] ?? 'pending';
 
     if (empty($title)) {
-        $error = "Title is required.";
+        $error = 'Title is required.';
+    } elseif (!in_array($status, ['pending', 'completed'])) {
+        $error = 'Invalid status.';
     } else {
-        $query = "INSERT INTO tasks (user_id, title, description, status) VALUES (?, ?, ?, ?)";
-        $stmt = mysqli_prepare($conn, $query);
-        mysqli_stmt_bind_param($stmt, "isss", $_SESSION['user_id'], $title, $description, $status);
-        if (mysqli_stmt_execute($stmt)) {
-            $success = "Task added successfully.";
+        try {
+            $stmt = $conn->prepare('INSERT INTO tasks (user_id, title, description, status) VALUES (?, ?, ?, ?)');
+            $stmt->bind_param('isss', $_SESSION['user_id'], $title, $description, $status);
+            $stmt->execute();
+            $success = 'Task added successfully.';
+            // Clear form after success
             $title = $description = '';
             $status = 'pending';
-        } else {
-            $error = "Failed to add task.";
+        } catch (mysqli_sql_exception $e) {
+            error_log('Add task error: ' . $e->getMessage());
+            $error = 'Failed to add task.';
+        } finally {
+            if (isset($stmt)) $stmt->close();
         }
-        mysqli_stmt_close($stmt);
     }
 }
 ?>
 
-<h2>Add New Task</h2>
-<?php if ($error): ?><div class="error"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
-<?php if ($success): ?><div class="success"><?php echo $success; ?></div><?php endif; ?>
+<!-- Navigation bar – consistent with other pages -->
+<div class="nav">
+    <strong>Add New Task</strong>
+    <a href="dashboard.php">← Back to Dashboard</a>
+</div>
+
+<h2>Task Details</h2>
+
+<?php if ($error): ?>
+    <div class="error"><?= htmlspecialchars($error) ?></div>
+<?php endif; ?>
+<?php if ($success): ?>
+    <div class="success"><?= htmlspecialchars($success) ?></div>
+<?php endif; ?>
+
 <form method="post">
     <label>Title *</label>
-    <input type="text" name="title" value="<?php echo isset($title) ? htmlspecialchars($title) : ''; ?>" required>
+    <input type="text" name="title" value="<?= htmlspecialchars($title) ?>" required maxlength="100">
+
     <label>Description</label>
-    <textarea name="description" rows="4"><?php echo isset($description) ? htmlspecialchars($description) : ''; ?></textarea>
+    <textarea name="description" rows="4"><?= htmlspecialchars($description) ?></textarea>
+
     <label>Status</label>
     <select name="status">
-        <option value="pending">Pending</option>
-        <option value="completed">Completed</option>
+        <option value="pending"  <?= $status === 'pending' ? 'selected' : '' ?>>Pending</option>
+        <option value="completed" <?= $status === 'completed' ? 'selected' : '' ?>>Completed</option>
     </select>
+
     <button type="submit">Save Task</button>
 </form>
-<a href="dashboard.php">← Back to Dashboard</a>
 
 <?php require_once 'includes/footer.php'; ?>

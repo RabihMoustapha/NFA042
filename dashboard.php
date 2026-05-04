@@ -1,32 +1,36 @@
 <?php
 require_once 'config/db.php';
 require_once 'includes/header.php';
-// session_start() removed – handled by header.php
 
+// Authentication check
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header('Location: login.php');
     exit();
 }
 
 $user_id = $_SESSION['user_id'];
 
-$query = "SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC";
-$stmt = mysqli_prepare($conn, $query);
-mysqli_stmt_bind_param($stmt, "i", $user_id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
+try {
+    $stmt = $conn->prepare('SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC');
+    $stmt->bind_param('i', $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} catch (mysqli_sql_exception $e) {
+    error_log('Dashboard fetch error: ' . $e->getMessage());
+    $result = null;
+}
 ?>
 
 <div class="nav">
-    <strong>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></strong>
+    <strong>Welcome, <?= htmlspecialchars($_SESSION['username']) ?></strong>
     <a href="add_task.php">+ Add Task</a>
     <a href="logout.php">Logout</a>
     <a href="upload.php">Upload Image</a>
-<a href="gallery.php">Image Gallery</a>
+    <a href="gallery.php">Image Gallery</a>
 </div>
 
 <h2>My Tasks</h2>
-<?php if (mysqli_num_rows($result) === 0): ?>
+<?php if (!$result || $result->num_rows === 0): ?>
     <p>No tasks yet. <a href="add_task.php">Create one</a>.</p>
 <?php else: ?>
     <table>
@@ -37,19 +41,19 @@ $result = mysqli_stmt_get_result($stmt);
             <th>Created</th>
             <th>Actions</th>
         </tr>
-        <?php while ($task = mysqli_fetch_assoc($result)): ?>
+        <?php while ($task = $result->fetch_assoc()): ?>
         <tr>
-            <td><?php echo htmlspecialchars($task['title']); ?></td>
-            <td><?php echo htmlspecialchars($task['description']); ?></td>
-            <td><?php echo $task['status']; ?></td>
-            <td><?php echo $task['created_at']; ?></td>
+            <td><?= htmlspecialchars($task['title']) ?></td>
+            <td><?= htmlspecialchars($task['description']) ?></td>
+            <td><?= htmlspecialchars($task['status']) ?></td>
+            <td><?= htmlspecialchars($task['created_at']) ?></td>
             <td>
-                <a href="edit_task.php?id=<?php echo $task['id']; ?>" class="btn-edit">Edit</a>
-                <a href="delete_task.php?id=<?php echo $task['id']; ?>" class="btn-danger" onclick="return confirm('Delete this task?')">Delete</a>
+                <a href="edit_task.php?id=<?= (int)$task['id'] ?>" class="btn-edit">Edit</a>
+                <a href="delete_task.php?id=<?= (int)$task['id'] ?>" class="btn-danger"
+                   onclick="return confirm('Delete this task?')">Delete</a>
             </td>
         </tr>
         <?php endwhile; ?>
     </table>
 <?php endif; ?>
-
 <?php require_once 'includes/footer.php'; ?>

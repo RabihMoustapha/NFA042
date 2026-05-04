@@ -1,11 +1,12 @@
 <?php
-// Redirect to dashboard if logged in, otherwise to login
-session_start();
+/**
+ * Entry point – redirects based on authentication state
+ */
+require_once 'includes/header.php';
+
 if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
-    exit();
+    header('Location: dashboard.php');
 } else {
-    header("Location: login.php");
-    exit();
+    header('Location: login.php');
 }
-?>
+exit();
