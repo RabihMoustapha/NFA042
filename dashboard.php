@@ -2,58 +2,39 @@
 require_once 'config/db.php';
 require_once 'includes/header.php';
 
-// Authentication check
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
-
-$user_id = $_SESSION['user_id'];
-
 try {
-    $stmt = $conn->prepare('SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC');
-    $stmt->bind_param('i', $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $result = $conn->query('SELECT * FROM posts ORDER BY created_at DESC');
 } catch (mysqli_sql_exception $e) {
-    error_log('Dashboard fetch error: ' . $e->getMessage());
+    error_log('Feed error: ' . $e->getMessage());
     $result = null;
 }
 ?>
 
-<div class="nav">
-    <strong>Welcome, <?= htmlspecialchars($_SESSION['username']) ?></strong>
-    <a href="add_task.php">+ Add Task</a>
-    <a href="logout.php">Logout</a>
-    <a href="upload.php">Upload Image</a>
-    <a href="gallery.php">Image Gallery</a>
-</div>
+<h2>Latest Discussions</h2>
 
-<h2>My Tasks</h2>
 <?php if (!$result || $result->num_rows === 0): ?>
-    <p>No tasks yet. <a href="add_task.php">Create one</a>.</p>
+    <p>No topics yet. <?= isset($_SESSION['role']) && $_SESSION['role'] === 'admin' ? '<a href="new_post.php">Create the first one</a>.' : 'Check back later.' ?></p>
 <?php else: ?>
-    <table>
-        <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th>Actions</th>
-        </tr>
-        <?php while ($task = $result->fetch_assoc()): ?>
-        <tr>
-            <td><?= htmlspecialchars($task['title']) ?></td>
-            <td><?= htmlspecialchars($task['description']) ?></td>
-            <td><?= htmlspecialchars($task['status']) ?></td>
-            <td><?= htmlspecialchars($task['created_at']) ?></td>
-            <td>
-                <a href="edit_task.php?id=<?= (int)$task['id'] ?>" class="btn-edit">Edit</a>
-                <a href="delete_task.php?id=<?= (int)$task['id'] ?>" class="btn-danger"
-                   onclick="return confirm('Delete this task?')">Delete</a>
-            </td>
-        </tr>
+    <div class="feed-grid">
+        <?php while ($post = $result->fetch_assoc()): ?>
+            <div class="card">
+                <?php if (!empty($post['image_path'])): ?>
+                    <img src="<?= htmlspecialchars($post['image_path']) ?>" alt="<?= htmlspecialchars($post['title']) ?>">
+                <?php endif; ?>
+                <h3><?= htmlspecialchars($post['title']) ?></h3>
+                <div class="game-name">🎮 <?= htmlspecialchars($post['game_name']) ?></div>
+                <div class="desc"><?= nl2br(htmlspecialchars(mb_substr($post['description'], 0, 120))) ?>...</div>
+                <div class="actions">
+                    <a href="post.php?id=<?= $post['id'] ?>" class="btn">View & Comment</a>
+                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                        <a href="edit_post.php?id=<?= $post['id'] ?>" class="btn btn-edit">Edit</a>
+                        <a href="delete_post.php?id=<?= $post['id'] ?>" class="btn btn-danger"
+                           onclick="return confirm('Delete this topic and all its comments?')">Delete</a>
+                    <?php endif; ?>
+                </div>
+            </div>
         <?php endwhile; ?>
-    </table>
+    </div>
 <?php endif; ?>
+
 <?php require_once 'includes/footer.php'; ?>

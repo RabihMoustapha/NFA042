@@ -6,13 +6,11 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Retrieve & trim inputs
     $username = trim($_POST['username'] ?? '');
     $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirm  = $_POST['confirm_password'] ?? '';
 
-    // Validation
     if (empty($username) || empty($email) || empty($password)) {
         $error = 'All fields are required.';
     } elseif ($password !== $confirm) {
@@ -23,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Invalid email format.';
     } else {
         try {
-            // Check for existing username or email
             $check = $conn->prepare('SELECT id FROM users WHERE username = ? OR email = ?');
             $check->bind_param('ss', $username, $email);
             $check->execute();
@@ -32,19 +29,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($check->num_rows > 0) {
                 $error = 'Username or email already taken.';
             } else {
-                // Hash password securely
                 $hashed = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
 
-                // Insert new user
-                $stmt = $conn->prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)');
-                $stmt->bind_param('sss', $username, $email, $hashed);
+                // Find the smallest available ID (gap or next)
+                $gapResult = $conn->query(
+                    "SELECT COALESCE(MIN(t1.id + 1), 1) AS next_id
+                     FROM users t1
+                     LEFT JOIN users t2 ON t1.id + 1 = t2.id
+                     WHERE t2.id IS NULL"
+                );
+                $gapRow = $gapResult->fetch_assoc();
+                $nextId = (int)$gapRow['next_id'];
+
+                // Insert with explicit ID
+                $stmt = $conn->prepare('INSERT INTO users (id, username, email, password) VALUES (?, ?, ?, ?)');
+                $stmt->bind_param('isss', $nextId, $username, $email, $hashed);
                 $stmt->execute();
 
                 $success = 'Registration successful. <a href="login.php">Login here</a>';
             }
         } catch (mysqli_sql_exception $e) {
-            error_log('Registration error: ' . $e->getMessage());
-            $error = 'An unexpected error occurred. Please try again.';
+            error_log('Register error: ' . $e->getMessage());
+            $error = 'An unexpected error occurred.';
         } finally {
             if (isset($check)) $check->close();
             if (isset($stmt)) $stmt->close();

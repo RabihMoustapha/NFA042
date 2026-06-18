@@ -1,10 +1,6 @@
 /* =================================================
-   TASK MANAGER – CLEAN, SYSTEM‑THEMED STYLES
-   Light/dark follows the OS preference
-   Uses system fonts, no manual toggle.
+   GAMERS SOCIAL – Light/Dark System Theme
    ================================================= */
-
-/* ---------- CSS CUSTOM PROPERTIES (Light) ---------- */
 :root {
     --bg-body: #f4f6f8;
     --bg-surface: #ffffff;
@@ -25,7 +21,6 @@
     --alert-success-text: #2f855a;
 }
 
-/* Dark colour scheme – overrides above when OS prefers dark */
 @media (prefers-color-scheme: dark) {
     :root {
         --bg-body: #1a202c;
@@ -48,7 +43,6 @@
     }
 }
 
-/* ---------- RESET & BASE ---------- */
 * {
     margin: 0;
     padding: 0;
@@ -56,8 +50,7 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-        Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background: var(--bg-body);
     color: var(--text-primary);
     line-height: 1.6;
@@ -66,7 +59,7 @@ body {
 }
 
 .container {
-    max-width: 1100px;
+    max-width: 1000px;
     margin: 0 auto;
     background: var(--bg-surface);
     border: 1px solid var(--border);
@@ -74,10 +67,7 @@ body {
     padding: 2rem;
 }
 
-/* ---------- TYPOGRAPHY ---------- */
-h1,
-h2,
-h3 {
+h1, h2, h3 {
     margin-bottom: 1rem;
     font-weight: 600;
     color: var(--text-primary);
@@ -104,7 +94,6 @@ a:hover {
     text-decoration: underline;
 }
 
-/* ---------- NAVIGATION ---------- */
 .nav {
     display: flex;
     flex-wrap: wrap;
@@ -118,7 +107,6 @@ a:hover {
 .nav strong {
     font-size: 1.1rem;
     color: var(--link);
-    margin-right: auto;
 }
 
 .nav a {
@@ -136,9 +124,8 @@ a:hover {
     text-decoration: none;
 }
 
-/* ---------- FORMS ---------- */
 form {
-    max-width: 550px;
+    max-width: 600px;
     margin-top: 1rem;
 }
 
@@ -150,9 +137,7 @@ label {
     color: var(--text-secondary);
 }
 
-input,
-textarea,
-select {
+input, textarea, select {
     width: 100%;
     padding: 0.6rem 0.8rem;
     font-family: inherit;
@@ -163,9 +148,7 @@ select {
     color: var(--text-primary);
 }
 
-input:focus,
-textarea:focus,
-select:focus {
+input:focus, textarea:focus, select:focus {
     outline: none;
     border-color: var(--border-focus);
     box-shadow: 0 0 0 2px rgba(43, 108, 176, 0.25);
@@ -173,12 +156,10 @@ select:focus {
 
 textarea {
     resize: vertical;
-    min-height: 90px;
+    min-height: 100px;
 }
 
-/* ---------- BUTTONS ---------- */
-button,
-.btn {
+button, .btn {
     display: inline-block;
     padding: 0.55rem 1.2rem;
     font-family: inherit;
@@ -191,11 +172,10 @@ button,
     cursor: pointer;
     text-align: center;
     margin-top: 1rem;
-    transition: background 0.2s;
+    transition: filter 0.2s;
 }
 
-button:hover,
-.btn:hover {
+button:hover, .btn:hover {
     filter: brightness(1.1);
     text-decoration: none;
 }
@@ -204,52 +184,19 @@ button:hover,
     background: #c53030;
     border-color: #c53030;
 }
-
 .btn-danger:hover {
     background: #9b2c2c;
 }
-
 .btn-edit {
     background: #d69e2e;
     border-color: #d69e2e;
     color: #1a202c;
 }
-
 .btn-edit:hover {
     background: #b7791f;
 }
 
-td a.btn-edit,
-td a.btn-danger {
-    padding: 0.25rem 0.75rem;
-    font-size: 0.8rem;
-    margin: 0 0.25rem;
-    border-radius: 3px;
-    display: inline-block;
-    text-decoration: none;
-}
-
-td a.btn-edit {
-    background: #ecc94b;
-    color: #1a202c;
-}
-
-td a.btn-danger {
-    background: #fc8181;
-    color: #fff;
-}
-
-td a.btn-edit:hover {
-    background: #d69e2e;
-}
-
-td a.btn-danger:hover {
-    background: #f56565;
-}
-
-/* ---------- ALERTS ---------- */
-.error,
-.success {
+.error, .success {
     padding: 0.75rem 1rem;
     margin: 1rem 0;
     border-left: 4px solid;
@@ -257,78 +204,93 @@ td a.btn-danger:hover {
     font-size: 0.9rem;
     border-radius: 3px;
 }
-
 .error {
     border-color: var(--alert-error-border);
     background: var(--alert-error-bg);
     color: var(--alert-error-text);
 }
-
 .success {
     border-color: var(--alert-success-border);
     background: var(--alert-success-bg);
     color: var(--alert-success-text);
 }
 
-/* ---------- TABLES ---------- */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1.5rem 0;
-    font-size: 0.875rem;
+.feed-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
 }
 
-th {
-    background: var(--table-header-bg);
-    font-weight: 600;
-    padding: 0.75rem;
-    text-align: left;
-    border-bottom: 2px solid var(--border);
-    color: var(--text-secondary);
-}
-
-td {
-    padding: 0.75rem;
-    border-bottom: 1px solid var(--border);
-    color: var(--text-primary);
-    vertical-align: middle;
-}
-
-tr:nth-child(even) td {
-    background: var(--table-stripe);
-}
-
-/* ---------- CARD (gallery) ---------- */
 .card {
     background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: 4px;
     padding: 1rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
 }
 
-/* ---------- UTILITIES ---------- */
-.text-center {
-    text-align: center;
+.card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 3px;
+    margin-bottom: 0.75rem;
+    background: var(--border);
 }
 
-.mt-2 {
-    margin-top: 0.5rem;
+.card h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
 }
 
-.mt-4 {
-    margin-top: 1rem;
-}
-
-.mb-2 {
+.card .game-name {
+    font-weight: 600;
+    color: var(--link);
     margin-bottom: 0.5rem;
 }
 
-.mb-4 {
-    margin-bottom: 1rem;
+.card .desc {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    flex-grow: 1;
+    margin-bottom: 0.75rem;
 }
 
-/* ---------- CUSTOM FILE INPUT ---------- */
+.card .actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: auto;
+}
+
+.card .actions .btn {
+    margin-top: 0;
+}
+
+.comment {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: var(--bg-surface);
+}
+
+.comment .meta {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.comment img {
+    max-width: 200px;
+    border-radius: 3px;
+    margin-top: 0.5rem;
+    border: 1px solid var(--border);
+}
+
 .custom-file {
     display: flex;
     align-items: center;
@@ -355,7 +317,6 @@ tr:nth-child(even) td {
     font-size: 0.875rem;
     font-weight: 500;
     border: 1px solid var(--btn-bg);
-    transition: filter 0.2s;
 }
 
 .file-label:hover {
@@ -365,56 +326,4 @@ tr:nth-child(even) td {
 .file-name {
     font-size: 0.875rem;
     color: var(--text-secondary);
-}
-
-/* ---------- GALLERY GRID & CARDS ---------- */
-.gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-}
-
-.gallery-item {
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-}
-
-.gallery-image {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 3px;
-    background: var(--border);
-}
-
-.gallery-title {
-    margin: 0.75rem 0 0.5rem;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.gallery-date {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-bottom: 0.75rem;
-}
-
-.card-actions {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-top: auto;
-}
-
-.card-actions .btn,
-.card-actions .btn-edit,
-.card-actions .btn-danger {
-    margin-top: 0;
-    padding: 0.45rem 0.9rem;
-    font-size: 0.8rem;
-    white-space: nowrap;
 }
