@@ -54,32 +54,6 @@ Originally developed for the **NFA041** university course.
 
 ---
 
-## 📁 Project Structure
-gamers-social/
-├── assets/
-│ └── style.css # Global stylesheet
-├── config/
-│ └── db.php # Database connection (MySQLi)
-├── includes/
-│ ├── header.php # Session start, <head>, nav bar
-│ └── footer.php # Closing tags
-├── images/ # Uploaded images (posts & comments)
-├── index.php # Redirect based on auth status
-├── login.php # User login form
-├── register.php # User registration (with ID gap-filling)
-├── logout.php # Destroy session
-├── dashboard.php # Main feed (all posts, cards)
-├── post.php # Single post view + comments
-├── new_post.php # Create new topic (admin only)
-├── edit_post.php # Edit existing topic (admin only)
-├── delete_post.php # Delete a post (admin only)
-├── delete_comment.php # Delete a comment (owner or admin)
-├── database.sql # Full database schema and initial tables
-└── README.md # This file
-
-
----
-
 ## 🧱 Database Schema
 
 The database `gamers_social_db` contains three tables:
@@ -119,46 +93,46 @@ All foreign keys use `ON DELETE CASCADE`, so deleting a user removes their posts
 
 ---
 
-## 🚀 Installation & Setup
+## 🗄️ Full Database SQL (`database.sql`)
 
-### 1. Clone / Download the Project
-Place the entire `gamers-social` folder inside your local server’s root directory:
-- XAMPP: `htdocs/`
-- WAMP: `www/`
-- MAMP: `htdocs/`
+```sql
+-- Create database
+CREATE DATABASE IF NOT EXISTS gamers_social_db
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
 
-### 2. Configure Database Connection
-Open `config/db.php` and update the credentials:
-```php
-$db_host = 'localhost';
-$db_user = 'root';      // your MySQL username
-$db_pass = '';          // your MySQL password
-$db_name = 'gamers_social_db';
+USE gamers_social_db;
 
-### 3. Import the Database
-- Open phpMyAdmin (http://localhost/phpmyadmin).
-- Create a new database named gamers_social_db (or import the file directly).
-- Select the database and import the database.sql file from the project.
+-- Users
+CREATE TABLE users (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('user', 'admin') DEFAULT 'user',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
 
-### 4. Create the images/ Folder
-Inside the project root, create a folder called images/.
-Make sure it has write permissions (777 or 755 depending on your server).
+-- Posts (topics created by admins)
+CREATE TABLE posts (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    user_id INT(11) NOT NULL,
+    title VARCHAR(150) NOT NULL,
+    description TEXT,
+    game_name VARCHAR(100) NOT NULL,
+    image_path VARCHAR(255) DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
-### 5. Roles
-**Features Available to Guests (Not Logged In)**
-- View the feed (list of all topics).
-- View a single post and its comments.
-- Cannot comment, create posts, or delete anything.
-
-**Features for Logged‑in Users**
-- Browse the feed.
-- View posts.
-- Add comments (with optional image upload).
-- Delete their own comments.
-
-**Features for Admins**
-- Everything a regular user can do.
-- Create new topics with a title, game name, description, and cover image.
-- Edit any post (change title, description, game name, replace image).
-- Delete any post (removes the post, all comments, and associated images).
-- Delete any comment.
+-- Comments (with optional image)
+CREATE TABLE comments (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    post_id INT(11) NOT NULL,
+    user_id INT(11) NOT NULL,
+    body TEXT NOT NULL,
+    image_path VARCHAR(255) DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
