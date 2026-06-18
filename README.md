@@ -1,182 +1,164 @@
-# Task Manager with Image Gallery – Full‑Stack PHP Project
+# 🎮 Gamers Social Media
 
-A complete, secure, and beginner‑friendly web application built with **plain PHP (no frameworks)**, **MySQLi (object‑oriented)**, **HTML/CSS**, and a touch of vanilla JavaScript. Includes user authentication, task CRUD, image upload/gallery with ownership control, and a clean, system‑themed responsive UI.
+A full‑stack social platform for gamers, built with **HTML**, **CSS**, **JavaScript**, **PHP (MySQLi)**, and **MySQL**.  
+Admins create discussion topics about video games (with images), and users can comment, upload images, and interact.  
+Originally developed for the **NFA041** university course.
 
-## Features
+---
 
-### Core (Task Manager)
-- User registration and login – bcrypt hashing, session management
-- Create, read, update, delete tasks  
-- Tasks have title, description, status (pending/completed)  
-- Form validation on both client and server side  
-- Logout
+## ✨ Features
 
-### Image Gallery (Additional)
-- Upload images (JPG, PNG, GIF, max 2MB)  
-- Automatic unique file renaming (keeps original filename for download)  
-- Image ownership – only the uploader can edit/delete  
-- Full CRUD for images: **edit title**, **delete** (with file removal)  
-- Download any image – original filename is sent to the browser  
-- Images stored in `/uploads/` folder, path stored in database
+- **User Authentication**
+  - Register with username, email, and password (bcrypt hashed).
+  - Login using username or email.
+  - Session‑based authentication (no tokens).
+  - Role‑based access: `user` and `admin`.
 
-### UI/UX
-- Clean, simple design – no heavy frameworks  
-- System‑native fonts – instant loading, no external dependencies  
-- Fully responsive (mobile‑friendly)  
-- **Automatic light/dark theme** – follows the OS preference (`prefers-color-scheme: dark`)  
-- Consistent navigation bar on every page  
-- Card‑based gallery, styled forms, tables, buttons, alerts
+- **Admin Capabilities**
+  - Create new topics (title, game name, description, cover image).
+  - Edit and delete any post.
+  - Delete any comment.
+  - Only admins can manage posts.
 
-### Security
-- **Prepared statements** (MySQLi OOP) everywhere – no SQL injection  
-- Output escaped with `htmlspecialchars()` to prevent XSS  
-- File upload validation – MIME type (via `finfo`), extension whitelist, size limit  
-- Path traversal protection in download script (`realpath()` check)  
-- Session regeneration after login  
-- Passwords hashed with `password_hash(PASSWORD_BCRYPT, ['cost' => 12])`
+- **User Interaction**
+  - Browse the feed of all topics (public).
+  - View a single post with full details.
+  - Add comments (text + optional image upload).
+  - Delete your own comments (or admin can delete any).
 
-## Technology Stack
+- **Image Handling**
+  - Upload images for posts (cover) and comments (attachment).
+  - File type validation (JPG, PNG, GIF, max 2 MB).
+  - Automatic deletion of image files when a post/comment is removed.
+
+- **Database Design**
+  - Relational MySQL schema with foreign keys and cascading deletes.
+  - Auto‑increment user IDs (with optional gap‑filling to reuse deleted IDs).
+  - Prepared statements everywhere to prevent SQL injection.
+
+- **Responsive & Accessible UI**
+  - Light/dark mode follows OS preference.
+  - System font stack, clean card‑based layout.
+  - File‑input custom styling with live filename display.
+
+---
+
+## 🛠️ Technologies Used
 
 | Layer       | Technology                          |
 |-------------|-------------------------------------|
-| Backend     | PHP 8+ (object‑oriented, no frameworks) |
-| Database    | MySQL (MySQLi OOP)                  |
-| Frontend    | HTML5, CSS3, vanilla JS             |
-| Server      | WAMP / XAMPP / Apache + PHP + MySQL |
-| Environment | Localhost development               |
+| Frontend    | HTML5, CSS3 (custom properties), vanilla JavaScript |
+| Backend     | PHP 7.4+ (procedural style, MySQLi) |
+| Database    | MySQL 8+ (InnoDB)                   |
+| Environment | XAMPP / WAMP / MAMP (Apache server) |
+
+---
+
+## 📁 Project Structure
+gamers-social/
+├── assets/
+│ └── style.css # Global stylesheet
+├── config/
+│ └── db.php # Database connection (MySQLi)
+├── includes/
+│ ├── header.php # Session start, <head>, nav bar
+│ └── footer.php # Closing tags
+├── images/ # Uploaded images (posts & comments)
+├── index.php # Redirect based on auth status
+├── login.php # User login form
+├── register.php # User registration (with ID gap-filling)
+├── logout.php # Destroy session
+├── dashboard.php # Main feed (all posts, cards)
+├── post.php # Single post view + comments
+├── new_post.php # Create new topic (admin only)
+├── edit_post.php # Edit existing topic (admin only)
+├── delete_post.php # Delete a post (admin only)
+├── delete_comment.php # Delete a comment (owner or admin)
+├── database.sql # Full database schema and initial tables
+└── README.md # This file
 
 
-## Installation Guide (WAMP Server)
+---
 
-### 1. Setup WAMP
-- Install WAMP and start the server (green icon).
-- Create project folder: `C:\wamp64\www\taskmanager`
+## 🧱 Database Schema
 
-### 2. Copy Files
-- Place all project files into the folder above, respecting the structure.
-- The `uploads/` folder will be created automatically on the first upload – make sure your web server can write to the project directory.
+The database `gamers_social_db` contains three tables:
 
-### 3. Import Database
-- Open phpMyAdmin: `http://localhost/phpmyadmin`
-- Create a new database named `taskmanager_db`
-- Import the single `database.sql` file (it creates `users`, `tasks`, and `images` tables with correct foreign keys)
+### `users`
+| Column       | Type         | Description                     |
+|--------------|--------------|---------------------------------|
+| id           | INT(11) PK   | Auto‑increment (gap‑filling used)|
+| username     | VARCHAR(50)  | Unique                          |
+| email        | VARCHAR(100) | Unique                          |
+| password     | VARCHAR(255) | Bcrypt hash                     |
+| role         | ENUM('user','admin') | Default 'user'           |
+| created_at   | TIMESTAMP    | Auto‑generated                  |
 
-### 4. Configure Database Connection
-- Open `config/db.php` and adjust credentials if needed (default: `root` / empty password).  
-  **In production, use a dedicated user with a strong password.**
+### `posts`
+| Column       | Type         | Description                        |
+|--------------|--------------|------------------------------------|
+| id           | INT(11) PK   | Auto‑increment                     |
+| user_id      | INT(11) FK   | References `users.id` (CASCADE)    |
+| title        | VARCHAR(150) |                                    |
+| description  | TEXT         |                                    |
+| game_name    | VARCHAR(100) | Name of the game being discussed   |
+| image_path   | VARCHAR(255) | Optional cover image path          |
+| created_at   | TIMESTAMP    | Auto‑generated                     |
 
-### 5. Run the Project
-- Open browser: `http://localhost/taskmanager/`
-- Register a new account → login → manage tasks
-- Upload images via `upload.php` → view/edit/delete in `gallery.php`
+### `comments`
+| Column       | Type         | Description                        |
+|--------------|--------------|------------------------------------|
+| id           | INT(11) PK   | Auto‑increment                     |
+| post_id      | INT(11) FK   | References `posts.id` (CASCADE)    |
+| user_id      | INT(11) FK   | References `users.id` (CASCADE)    |
+| body         | TEXT         | Comment text                       |
+| image_path   | VARCHAR(255) | Optional attachment image          |
+| created_at   | TIMESTAMP    | Auto‑generated                     |
 
-## Database Schema
+All foreign keys use `ON DELETE CASCADE`, so deleting a user removes their posts and comments, and deleting a post removes all associated comments.
 
-### Table `users`
-| Column      | Type         | Description                 |
-|-------------|--------------|-----------------------------|
-| id          | INT(11) AUTO | Primary key                 |
-| username    | VARCHAR(50)  | Unique login name           |
-| email       | VARCHAR(100) | Unique email                |
-| password    | VARCHAR(255) | Hashed password             |
-| created_at  | TIMESTAMP    | Registration time           |
+---
 
-### Table `tasks`
-| Column      | Type         | Description                       |
-|-------------|--------------|-----------------------------------|
-| id          | INT(11) AUTO | Primary key                       |
-| user_id     | INT(11)      | Foreign key → users(id)           |
-| title       | VARCHAR(100) | Task title                        |
-| description | TEXT         | Task details                      |
-| status      | ENUM('pending','completed') | Status        |
-| created_at  | TIMESTAMP    | Creation time                     |
+## 🚀 Installation & Setup
 
-### Table `images`
-| Column            | Type          | Description                          |
-|-------------------|---------------|--------------------------------------|
-| id                | INT(11) AUTO  | Primary key                          |
-| user_id           | INT(11)       | Foreign key → users(id) (owner)      |
-| title             | VARCHAR(100)  | Optional image title                 |
-| image_path        | VARCHAR(255)  | Relative path (e.g., `uploads/abc.jpg`) |
-| original_filename | VARCHAR(255)  | Original file name from upload       |
-| created_at        | TIMESTAMP     | Upload time                          |
+### 1. Clone / Download the Project
+Place the entire `gamers-social` folder inside your local server’s root directory:
+- XAMPP: `htdocs/`
+- WAMP: `www/`
+- MAMP: `htdocs/`
 
-## Code Explanation (Key Files)
+### 2. Configure Database Connection
+Open `config/db.php` and update the credentials:
+```php
+$db_host = 'localhost';
+$db_user = 'root';      // your MySQL username
+$db_pass = '';          // your MySQL password
+$db_name = 'gamers_social_db';
 
-### `config/db.php`
-- Object‑oriented MySQLi connection with exception mode.
-- Sets UTF‑8 charset, handles connection errors gracefully.
+### 3. Import the Database
+- Open phpMyAdmin (http://localhost/phpmyadmin).
+- Create a new database named gamers_social_db (or import the file directly).
+- Select the database and import the database.sql file from the project.
 
-### `includes/header.php`
-- Starts session only if not already active.
-- Outputs HTML `<head>` and `.container` opening div.
+### 4. Create the images/ Folder
+Inside the project root, create a folder called images/.
+Make sure it has write permissions (777 or 755 depending on your server).
 
-### `register.php` / `login.php`
-- Validate input, check duplicates, hash password with bcrypt.
-- Session regeneration on login to prevent fixation.
+### 5. Roles
+**Features Available to Guests (Not Logged In)**
+- View the feed (list of all topics).
+- View a single post and its comments.
+- Cannot comment, create posts, or delete anything.
 
-### `dashboard.php`
-- Fetches only tasks belonging to the logged‑in user.
-- Styled table with edit/delete links.
+**Features for Logged‑in Users**
+- Browse the feed.
+- View posts.
+- Add comments (with optional image upload).
+- Delete their own comments.
 
-### `upload.php`
-- Requires login – every image is tied to a user.
-- Validates file (MIME, extension, size).
-- Renames file on disk with `uniqid()`, stores `original_filename` in DB.
-- Saves `user_id`, title, paths.
-
-### `gallery.php`
-- Displays all images (order by newest first).
-- Shows **Edit** and **Delete** buttons **only to the owner**.
-- Action buttons are evenly sized and centrally aligned in each card.
-
-### `edit_image.php`
-- Allows the owner to update the image title.
-- Verifies ownership before showing form or processing update.
-
-### `delete_image.php`
-- Checks ownership, removes database record and deletes the file from disk.
-- Redirects back to gallery.
-
-### `download.php`
-- Fetches image path and original filename.
-- Verifies the resolved path is inside the project root (`realpath`).
-- Forces download with the **original** filename.
-
-### `style.css`
-- Uses CSS custom properties for effortless light/dark theming.
-- `@media (prefers-color-scheme: dark)` automatically switches colours – no manual toggle.
-- System font stack, responsive grid, and clean card/table/button styles.
-
-## Security Notes
-
-- Every database query uses **prepared statements** (MySQLi OOP).
-- File uploads are validated by both MIME type (`finfo`) and extension whitelist.
-- No original filename is used on disk – prevents overwrites and path attacks.
-- Download script uses `realpath()` to stop directory traversal.
-- All user‑supplied data is escaped with `htmlspecialchars()` before output.
-- Passwords are stored using bcrypt (cost 12) – never plain text.
-- Session ID is regenerated after login to prevent session fixation.
-
-## Customization Ideas
-
-- Add user profile pages or avatar uploads  
-- Enable sharing tasks with other users  
-- Implement a trash/recycle bin for tasks and images  
-- Add AJAX upload with progress bar  
-- Paginate the gallery  
-
-## Troubleshooting
-
-| Issue                               | Solution                                                                 |
-|-------------------------------------|--------------------------------------------------------------------------|
-| White screen or connection error    | Check WAMP is running, and verify database credentials in `config/db.php` |
-| Session errors / headers already sent | Ensure no whitespace before `<?php` in `header.php`                     |
-| Upload fails (move_uploaded_file)   | Make sure the `uploads/` folder exists (it’s auto‑created) and is writable |
-| Download shows gibberish            | Verify `download.php` has no output before the headers                  |
-| Images not displaying               | Check that `image_path` in DB matches the actual file location          |
-| ‘You do not have permission’ error  | Your session might have expired – log in again                           |
-
-## License
-
-MIT – free to use, modify, and distribute.
+**Features for Admins**
+- Everything a regular user can do.
+- Create new topics with a title, game name, description, and cover image.
+- Edit any post (change title, description, game name, replace image).
+- Delete any post (removes the post, all comments, and associated images).
+- Delete any comment.
