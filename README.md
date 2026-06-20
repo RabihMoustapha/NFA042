@@ -1,138 +1,119 @@
-# 🎮 Gamers Social Media
+# Gamers Social
 
-A full‑stack social platform for gamers, built with **HTML**, **CSS**, **JavaScript**, **PHP (MySQLi)**, and **MySQL**.  
-Admins create discussion topics about video games (with images), and users can comment, upload images, and interact.  
-Originally developed for the **NFA041** university course.
+A community-driven discussion platform for gamers to share topics, ask questions, and engage in conversations about their favorite games.
 
----
+## 🌟 Features
 
-## ✨ Features
+- **User authentication** – Register and log in with secure password hashing (bcrypt).
+- **Role‑based access** – Admins can create, edit, and delete topics; regular users can comment.
+- **Discussion topics** – Each post includes a title, game name, description, and an optional cover image.
+- **Comments with images** – Users can reply to posts and attach an image to their comment.
+- **Image upload** – Supports JPEG, PNG, and GIF images up to 2 MB.
+- **Responsive design** – Adapts to light/dark system preference automatically.
+- **Secure database interactions** – All queries use prepared statements to prevent SQL injection.
 
-- **User Authentication**
-  - Register with username, email, and password (bcrypt hashed).
-  - Login using username or email.
-  - Session‑based authentication (no tokens).
-  - Role‑based access: `user` and `admin`.
+## 🛠️ Technologies
 
-- **Admin Capabilities**
-  - Create new topics (title, game name, description, cover image).
-  - Edit and delete any post.
-  - Delete any comment.
-  - Only admins can manage posts.
+- **PHP 7.4+** – Server‑side scripting
+- **MySQL / MariaDB** – Database
+- **HTML5 & CSS3** – Custom styling with CSS variables for theming
+- **JavaScript** – Minimal for file‑upload UI feedback
 
-- **User Interaction**
-  - Browse the feed of all topics (public).
-  - View a single post with full details.
-  - Add comments (text + optional image upload).
-  - Delete your own comments (or admin can delete any).
+## 🚀 Installation
 
-- **Image Handling**
-  - Upload images for posts (cover) and comments (attachment).
-  - File type validation (JPG, PNG, GIF, max 2 MB).
-  - Automatic deletion of image files when a post/comment is removed.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/gamers-social.git
+   cd gamers-social
+   ```
 
-- **Database Design**
-  - Relational MySQL schema with foreign keys and cascading deletes.
-  - Auto‑increment user IDs (with optional gap‑filling to reuse deleted IDs).
-  - Prepared statements everywhere to prevent SQL injection.
+2. **Set up the database**
+   - Create a MySQL database (e.g., `gamers_social_db`).
+   - Run the following SQL to create the necessary tables:
 
-- **Responsive & Accessible UI**
-  - Light/dark mode follows OS preference.
-  - System font stack, clean card‑based layout.
-  - File‑input custom styling with live filename display.
+   ```sql
+   CREATE TABLE users (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       username VARCHAR(50) UNIQUE NOT NULL,
+       email VARCHAR(100) UNIQUE NOT NULL,
+       password VARCHAR(255) NOT NULL,
+       role VARCHAR(20) DEFAULT 'user',
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   );
 
----
+   CREATE TABLE posts (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       user_id INT NOT NULL,
+       title VARCHAR(150) NOT NULL,
+       description TEXT,
+       game_name VARCHAR(100) NOT NULL,
+       image_path VARCHAR(255),
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+   );
 
-## 🛠️ Technologies Used
+   CREATE TABLE comments (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       post_id INT NOT NULL,
+       user_id INT NOT NULL,
+       body TEXT NOT NULL,
+       image_path VARCHAR(255),
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+   );
+   ```
 
-| Layer       | Technology                          |
-|-------------|-------------------------------------|
-| Frontend    | HTML5, CSS3 (custom properties), vanilla JavaScript |
-| Backend     | PHP 7.4+ (procedural style, MySQLi) |
-| Database    | MySQL 8+ (InnoDB)                   |
-| Environment | XAMPP / WAMP / MAMP (Apache server) |
+3. **Configure database connection**
+   - Open `config/db.php` and update the credentials:
+     ```php
+     $db_host = 'localhost';
+     $db_user = 'your_db_user';
+     $db_pass = 'your_db_password';
+     $db_name = 'gamers_social_db';
+     ```
 
----
+4. **Run the application**
+   - Place the project in your web server's document root (e.g., `htdocs` for XAMPP).
+   - Access `http://localhost/gamers-social` in your browser.
 
-## 🧱 Database Schema
+## 📖 Usage
 
-The database `gamers_social_db` contains three tables:
+- **Register** a new account (all users are regular users by default).
+- **Log in** with your credentials.
+- **Admin access** – To gain admin rights, manually set the `role` column to `'admin'` in the `users` table for your user.
+- **Create topics** – Only admins can add new posts via the “+ New Topic” link.
+- **Comment** – Logged‑in users can reply to any post and optionally attach an image.
+- **Manage posts** – Admins can edit or delete any post (this also removes all its comments).
 
-### `users`
-| Column       | Type         | Description                     |
-|--------------|--------------|---------------------------------|
-| id           | INT(11) PK   | Auto‑increment (gap‑filling used)|
-| username     | VARCHAR(50)  | Unique                          |
-| email        | VARCHAR(100) | Unique                          |
-| password     | VARCHAR(255) | Bcrypt hash                     |
-| role         | ENUM('user','admin') | Default 'user'           |
-| created_at   | TIMESTAMP    | Auto‑generated                  |
+## 📁 Project Structure
 
-### `posts`
-| Column       | Type         | Description                        |
-|--------------|--------------|------------------------------------|
-| id           | INT(11) PK   | Auto‑increment                     |
-| user_id      | INT(11) FK   | References `users.id` (CASCADE)    |
-| title        | VARCHAR(150) |                                    |
-| description  | TEXT         |                                    |
-| game_name    | VARCHAR(100) | Name of the game being discussed   |
-| image_path   | VARCHAR(255) | Optional cover image path          |
-| created_at   | TIMESTAMP    | Auto‑generated                     |
+```
+gamers-social/
+├── assets/
+│   └── style.css              # Main stylesheet with light/dark themes
+├── config/
+│   └── db.php                 # Database connection
+├── includes/
+│   ├── header.php             # Page header with navigation
+│   └── footer.php             # Page footer
+├── images/                    # Uploaded images (created automatically)
+├── dashboard.php              # Post feed (homepage)
+├── delete_post.php            # Delete a post (admin only)
+├── edit_post.php              # Edit a post (admin only)
+├── index.php                  # Redirects to login/dashboard
+├── login.php                  # User login
+├── logout.php                 # Log out
+├── new_post.php               # Create a new post (admin only)
+├── post.php                   # View a single post with comments
+├── register.php               # User registration
+└── README.md                  # This file
+```
 
-### `comments`
-| Column       | Type         | Description                        |
-|--------------|--------------|------------------------------------|
-| id           | INT(11) PK   | Auto‑increment                     |
-| post_id      | INT(11) FK   | References `posts.id` (CASCADE)    |
-| user_id      | INT(11) FK   | References `users.id` (CASCADE)    |
-| body         | TEXT         | Comment text                       |
-| image_path   | VARCHAR(255) | Optional attachment image          |
-| created_at   | TIMESTAMP    | Auto‑generated                     |
+## 🤝 Contributing
 
-All foreign keys use `ON DELETE CASCADE`, so deleting a user removes their posts and comments, and deleting a post removes all associated comments.
+Contributions are welcome! Feel free to open issues or submit pull requests for improvements, bug fixes, or new features.
 
----
+## 📄 License
 
-## 🗄️ Full Database SQL (`database.sql`)
-
-```sql
--- Create database
-CREATE DATABASE IF NOT EXISTS gamers_social_db
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-USE gamers_social_db;
-
--- Users
-CREATE TABLE users (
-    id INT(11) AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    role ENUM('user', 'admin') DEFAULT 'user',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
-
--- Posts (topics created by admins)
-CREATE TABLE posts (
-    id INT(11) AUTO_INCREMENT PRIMARY KEY,
-    user_id INT(11) NOT NULL,
-    title VARCHAR(150) NOT NULL,
-    description TEXT,
-    game_name VARCHAR(100) NOT NULL,
-    image_path VARCHAR(255) DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
--- Comments (with optional image)
-CREATE TABLE comments (
-    id INT(11) AUTO_INCREMENT PRIMARY KEY,
-    post_id INT(11) NOT NULL,
-    user_id INT(11) NOT NULL,
-    body TEXT NOT NULL,
-    image_path VARCHAR(255) DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+This project is for educational purposes. You may use and modify it under the terms of the [MIT License](LICENSE).
